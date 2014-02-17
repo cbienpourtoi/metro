@@ -42,6 +42,7 @@ fit = maxi_fit * gaussian(x, moyenne_fit, sigma_fit)
 plt.plot(x, signal)
 plt.plot(x, fit)
 #plt.show()
+plt.savefig("signal.png")
 plt.close()
 
 lnL_old = - sum( (signal - fit) * (signal - fit) ) / (2. * noiselevel *
