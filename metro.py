@@ -1,111 +1,122 @@
-
-# Metropolis hastings for fitting a gaussian line
+''' very simple Metropolis-Hastings algorithm for fitting a gaussian line '''
 
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 
+# Simple gaussian function
 def gaussian(x, mu, sig):
     return np.exp(-np.power(x - mu, 2.) / (2. * np.power(sig, 2.)))
 
 
-# Lets create a gaussian line with some noise
+''' Create a gaussian line with some noise '''
 
 N = 100. # nb points
 x = np.arange(N) # axis
 
 # parameters of the initial gaussian
 sigma = 5.
-moyenne = 50.
+position = 50.
 maxi = 1.
 
 # parameter of the noise (here gaussian noise sampled relatively to the signal maximum).
 noiselevel = maxi / 10.
 
-# signal = gaussian g + noise
-g = maxi  * gaussian(x, moyenne, sigma)
+# Creates the signal (g) and the noise
+g = maxi  * gaussian(x, position, sigma)
 noise = noiselevel * np.random.normal(0,1,N)
-
 signal = g + noise
 
-# Take a 'random' fit parameters (should be real random but who cares) (also, it is obviously not a fit, it is just the model)
-# In this example only sigma and the moyenne vary. The max is constant. To be changed.
+''' Fit '''
+# Take a 'step 0' fit parameters (it is obviously not a fit, it is just the model)
+# In this example only sigma and the position vary. The max is constant. To be changed.
 
-sigma_fit = 2.5
-moyenne_fit = 22.
+# Fit parameters
+sigma_fit = 4.0
+position_fit = 60.
 maxi_fit = 1.00
 
-fit = maxi_fit * gaussian(x, moyenne_fit, sigma_fit)
+# Fit array
+fit = maxi_fit * gaussian(x, position_fit, sigma_fit)
 
 
 # Plots the signal and its random fit
 plt.plot(x, signal)
 plt.plot(x, fit)
-#plt.show()
-plt.savefig("signal.png")
+#plt.show() # Uncomment to show graph on screen
+#plt.savefig("signal.png") # Uncomment to save graph on disk
 plt.close()
 
-lnL_old = - sum( (signal - fit) * (signal - fit) ) / (2. * noiselevel *
-noiselevel)
 
 
-#On varie juste en sigma et en moyenne pour le moment
+''' Likelihood Calculation for these initial parameters' fit '''
+lnL_old = - sum( (signal - fit) * (signal - fit) ) / (2. * noiselevel * noiselevel)
 
+
+# Only variations in position and sigma at this time
+
+# Number of iterations of the algorithm
 Ntries = 15000
+
+# Initialization of arrays
 sigmas = []
 lnLs = []
-moyennes = []
-old_sigma_fit = sigma_fit
-old_moyenne_fit = moyenne_fit
+positions = []
 
+old_sigma_fit = sigma_fit
+old_position_fit = position_fit
+
+
+# Mean dispersion of a random walk.
 sig_trajet = 0.5
 
+''' Core of the algo '''
+# Makes new 'fit' with a random walk in the parameters' space from the last position.
+# Check if the new fit has a better likelihood.
+# If yes, keep the new parameters.
+# If no, the probability to keep the new parameters is a function of the likelihood weights (here priors = 1).
+
 for i in np.arange(Ntries) :
+
+		# new parameters, fit, and likelihood
         new_sigma_fit = old_sigma_fit + (np.random.normal(0,sig_trajet,1))[0]
-        new_moyenne_fit = old_moyenne_fit + (np.random.normal(0,sig_trajet,1))[0]
+        new_position_fit = old_position_fit + (np.random.normal(0,sig_trajet,1))[0]
 
-        new_fit = maxi_fit * gaussian(x, new_moyenne_fit, new_sigma_fit)
+        new_fit = maxi_fit * gaussian(x, new_position_fit, new_sigma_fit)
 
-        lnL_new = - sum( (signal - new_fit) * (signal - new_fit) ) / (2. *
-noiselevel * noiselevel)
+        lnL_new = - sum( (signal - new_fit) * (signal - new_fit) ) / (2. * noiselevel * noiselevel)
 
-        #print lnL_new
-        #print lnL_old
 
+		# Conditional probability for keeping the new parameters
         probab = np.exp(lnL_new - lnL_old) * 1.
 
-        if  probab >=  np.random.uniform(0,1):
-                old_moyenne_fit = new_moyenne_fit
+        if  probab >=  np.random.uniform(0,1): # In the case where the new likelihood is better than the old one, this is always true. In the opposite case, the output depends on the probability.
+				# New is now old.
+                old_position_fit = new_position_fit
                 old_sigma_fit = new_sigma_fit
                 lnL_old = lnL_new
+                # Saves the data about the walk in the parameters space.
                 sigmas.append(old_sigma_fit)
                 lnLs.append(lnL_old)
-                moyennes.append(old_moyenne_fit)
+                positions.append(old_position_fit)
 
 
-# sigma et moyenne en fonction des Like
-plt.plot(sigmas, lnLs, '+')
-plt.plot(moyennes, lnLs, '+')
+
+''' A few graphs '''
+
+# Sigma and positions as a function of the likelihoods
+plt.plot(sigmas, lnLs, '+b', label ='Sigmas')
+plt.plot(positions, lnLs, '+r', label ='Positions')
+plt.legend()
+plt.xlabel("Sigma/Position")
+plt.ylabel("Likelihood")
 #plt.show()
 plt.close()
 
-
-# progression des sigma avec le temps
-plt.plot(sigmas)
-plt.show()
-plt.close()
-
-
-
-
-# progression des moyennes avec le temps
-plt.plot(moyennes)
-plt.show()
-plt.close()
-
-
-# Convergences moyennes et sigmas
-plt.plot(sigmas, moyennes)
+# Walk in the Position - Sigma space
+plt.plot(sigmas, positions)
+plt.xlabel("Sigma")
+plt.ylabel("Position")
 plt.show()
 plt.close()
 
