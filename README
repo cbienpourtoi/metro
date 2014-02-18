@@ -1,0 +1,7 @@
+This is a Metropolis Hastings algorithm for fitting a simple gaussian in Python.
+http://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm
+
+To run, download python
+(using for example in Ubuntu: sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose )
+and type
+python metro.py
