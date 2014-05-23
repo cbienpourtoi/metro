@@ -1,4 +1,10 @@
-''' very simple Metropolis-Hastings algorithm for fitting a gaussian line '''
+''' File: metro.py '''
+''' Copyright: Loic Le Tiran, 2014 '''
+''' Contact: loic.le-tiran@obspm.fr '''
+''' Licence: GNU GPL v3 '''
+
+''' Description: '''
+''' Simple Metropolis-Hastings algorithm for fitting a gaussian line '''
 
 import numpy as np
 import scipy

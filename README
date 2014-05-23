@@ -1,3 +1,8 @@
+
+Copyright: Loic Le Tiran, 2014
+Contact: loic.le-tiran@obspm.fr
+Licence: GNU GPL v3
+
 This is a Metropolis Hastings algorithm for fitting a simple gaussian in Python.
 http://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm
 
